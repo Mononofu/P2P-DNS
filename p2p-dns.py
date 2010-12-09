@@ -44,7 +44,7 @@ class App(object):
         self.parser.print_help()
         print("\n\tCLI commands:")
         for (command, explanaiton) in sorted( commands.items() ):
-            print( "%s %s" % (command, explanaiton) )
+            print( "%-10s %s" % (command, explanaiton) )
 
     def start_daemon(self):
         proc_id = os.spawnl(os.P_NOWAIT, sys.executable + " " + sys.argv[0], "-d")

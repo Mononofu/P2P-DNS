@@ -27,7 +27,7 @@ class Server(threading.Thread):
         c.execute("create table if not exists domains (domain text, ip text, key text)")
         c.commit()
         for row in c.execute("select * from nodes"):
-            self.nodes[row[0]] = row[1]      
+            self.nodes[row[0]] = int(row[1])      
         for row in c.execute("select * from domains"):
             self.domains[row[0]] = Domain(row[0], row[1], row[2])   
         c.close()
@@ -45,15 +45,14 @@ class Server(threading.Thread):
     def handle_data(self, socket, address):
         print("got data")
 
+        msg = ""
         while True:
-            msg = str( socket.read() )
-
-            print(msg)
-
-            if not self.handle_message(msg, socket, address):
+            msg += str( socket.read() )
+            if msg[-1] == "\0":
+                socket.close()
                 break
-            
-        socket.close()
+        print(msg)
+        return self.handle_message(msg[:-1], socket, address)
 
     def handle_message(self, msg, socket, address):
         if self.isP2PMessage(msg):
@@ -62,7 +61,8 @@ class Server(threading.Thread):
                 print("requesting sth")
                 if "CONNECTION" in msg:
                     print("a connection!")
-                    socket.write(b"P2P-DNS 0.1\nACCEPT CONNECTION\n")
+                    self.send_message("ACCEPT CONNECTION\nPORT %d" % listen_port,
+                                      address)
                     port = int( re.findall(r'PORT (\d+)', msg)[0] )
                     self.nodes[address] = port
 
@@ -72,26 +72,46 @@ class Server(threading.Thread):
                     c.close()
                     
                     print("have new node: %s:%s" % (address, port))
-                    return True
                 elif "NODES" in msg:
                     print("all the nodes I know!")
-                    msg = "P2P-DNS 0.1\nKNOWN NODES"
+                    msg = "DATA NODES"
                     for (ip, port) in self.nodes.items():
                         msg += "\n%s %s" % (ip, port)
-                    socket.write(msg)
-                    return False
-        return False
+                    self.send_message(msg, address)
+            elif "ACCEPT" in msg:
+                if "CONNECTION" in msg:
+                    print("node accepted the connection")
+                    port = int( re.findall(r'PORT (\d+)', msg)[0] )
+                    self.add_node_to_db(address, port)
+                    self.send_message("REQUEST NODES", address)            
+            elif "DATA" in msg:
+                if "NODES" in msg:
+                    for l in msg.split('\n')[2:]:
+                        n = l.split(' ')
+
+                        if n[0] != address and n[0] != my_address:
+                            self.send_message("REQUEST CONNECTION\nPORT %d" % listen_port,
+                                          n[0],
+                                          n[1])
+                        
+        return True
 
     def add_node_to_db(self, host, port):
         if host not in self.nodes:
-            self.nodes[host] = port
+            self.nodes[host] = int(port)
 
             c = sqlite3.connect('./db')
             c.execute("insert into nodes values (?, ?)", (host, port))
             c.commit()
             c.close()
-                
-    def add_node(self, host, port):
+
+    def send_message(self, msg, host, port = None):
+        if port == None:
+            try:
+                port = self.nodes[host]
+            except KeyError:
+                port = default_port
+        print("connect to %s:%s" % (host, port))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ssl_sock = ssl.wrap_socket(s, cert_reqs=ssl.CERT_NONE)
         try:
@@ -99,28 +119,22 @@ class Server(threading.Thread):
         except socket.error:
             print("host %s doesn't accept connection" % host)
             return
+        msg = "P2P-DNS 0.1\n" + msg
 
-        ssl_sock.write("P2P-DNS 0.1\nREQUEST CONNECTION\nPORT %s" % port)
-
-        data = str( ssl_sock.read() )
-
-        if "P2P-DNS" in data:
-            if "ACCEPT" in data:
-                print("node accepted the connection")
-
-                self.add_node_to_db(host, port)
-
-                ssl_sock.write("P2P-DNS 0.1\nREQUEST NODES")
-                data = str( ssl_sock.read() )
-                for l in data.split('\n')[2:]:
-                    n = l.split(' ')
-                    self.nodes_to_ask[n[0]] = int(n[1])
-            else:
-                print("node refused connection")
+        # all messages are null-terminated so we know when we have
+        # reached the end of it
+        # the null will be stripped by the receiver
+        if msg[-1] == '\0':
+            ssl_sock.write(msg)
         else:
-            print("couldn't find p2p-dns server")
-
+            ssl_sock.write(msg + '\0')
         ssl_sock.close()
+                
+    def add_node(self, host, port):
+        self.send_message("REQUEST CONNECTION\nPORT %s" % listen_port,
+                          host,
+                          port)
+        # that's the port this server is listening on
 
     def stop(self):
         self._stopped.set()
