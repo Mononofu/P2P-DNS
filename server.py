@@ -4,6 +4,7 @@
 import threading
 import re
 from config import *
+from database import *
 import sqlite3
 import socket, ssl
 
@@ -14,31 +15,12 @@ class Domain(object):
         self.key = key
 
 class Server(threading.Thread):
-    def __init__(self):
+    def __init__(self, db):
         threading.Thread.__init__(self)
         self._stopped = threading.Event()
-        self.domains = {}
-        self.nodes = {}
         self.port = default_port
+        self.database = db
 
-        c = sqlite3.connect('./db')
- 
-        c.execute("create table if not exists nodes (ip text, port text)")
-        c.execute("create table if not exists domains (domain text, ip text, key text)")
-        c.commit()
-        for row in c.execute("select * from nodes"):
-            self.nodes[row[0]] = int(row[1])      
-        for row in c.execute("select * from domains"):
-            self.domains[row[0]] = Domain(row[0], row[1], row[2])   
-        c.close()
-
-    def print_nodes(self):
-        c = sqlite3.connect('./db')
-        for row in c.execute("select * from nodes"):
-            print("%s:%s" % (row[0], row[1])) 
-        c.close()
-
-        
     def isP2PMessage(self, msg):
         return "P2P-DNS" in msg
 
@@ -64,13 +46,8 @@ class Server(threading.Thread):
                     self.send_message("ACCEPT CONNECTION\nPORT %d" % listen_port,
                                       address)
                     port = int( re.findall(r'PORT (\d+)', msg)[0] )
-                    self.nodes[address] = port
 
-                    c = sqlite3.connect('./db')
-                    c.execute("insert into nodes values (?, ?)", (address, port))
-                    c.commit()
-                    c.close()
-                    
+                    self.database.add_node_to_db(address, port)                
                     print("have new node: %s:%s" % (address, port))
                 elif "NODES" in msg:
                     print("all the nodes I know!")
@@ -95,15 +72,6 @@ class Server(threading.Thread):
                                           n[1])
                         
         return True
-
-    def add_node_to_db(self, host, port):
-        if host not in self.nodes:
-            self.nodes[host] = int(port)
-
-            c = sqlite3.connect('./db')
-            c.execute("insert into nodes values (?, ?)", (host, port))
-            c.commit()
-            c.close()
 
     def send_message(self, msg, host, port = None):
         if port == None:

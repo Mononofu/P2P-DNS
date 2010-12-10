@@ -8,7 +8,8 @@ import threading
 import os
 import re
 from config import *
-from server import *            
+from server import *
+from database import *
 
 class App(object):
     def __init__(self):
@@ -52,7 +53,8 @@ class App(object):
         self.quit()
 
     def start_server(self):
-        self.srv = Server()
+        self.db = Database()
+        self.srv = Server(db)
         self.srv.start()
 
     def stop(self):
@@ -86,7 +88,7 @@ class App(object):
                         
                         self.srv.add_node(server, port)
                     elif io == "nodes":
-                        self.srv.print_nodes()
+                        self.db.print_nodes()
                     elif io == "quit":
                         self.stop()
                     else:
