@@ -1,11 +1,10 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import threading
 import re
 from config import *
 from database import *
-import sqlite3
 import socket, ssl
 
 class Domain(object):
@@ -114,7 +113,7 @@ class Server(threading.Thread):
         s = socket.socket()
         s.bind(('', listen_port))
         s.listen(5)
-        s.settimeout(1)
+        s.settimeout(0.1)
         
         while not self.stopped():
             try:

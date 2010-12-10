@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import readline
@@ -10,6 +10,7 @@ import re
 from config import *
 from server import *
 from database import *
+from dns_module import *
 
 class App(object):
     def __init__(self):
@@ -54,12 +55,20 @@ class App(object):
 
     def start_server(self):
         self.db = Database()
-        self.srv = Server(db)
+        self.srv = Server(self.db)
+        self.dns = DNSModule(self.db)
+
+        
+        self.dns.start()
         self.srv.start()
 
     def stop(self):
+        self.dns.stop()
         self.srv.stop()
+        
         self.srv.join()
+        self.dns.join()
+        
         sys.exit()
 
     def run(self):
@@ -89,6 +98,8 @@ class App(object):
                         self.srv.add_node(server, port)
                     elif io == "nodes":
                         self.db.print_nodes()
+                    elif io == "domains":
+                        self.db.print_domains()
                     elif io == "quit":
                         self.stop()
                     else:
