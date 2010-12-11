@@ -6,7 +6,8 @@ import time
 import sqlite3
 
 class Domain(object):
-    def __init__(self, domain, ip, key, ttl = default_ttl, timestamp = time.time() + default_record_lifetime):
+    def __init__(self, domain, ip, key, ttl = default_ttl,
+                 timestamp = time.time() + default_record_lifetime):
         self.domain = str(domain)
         self.ip = str(ip)
         self.key = str(key)
@@ -21,7 +22,8 @@ class Database(object):
         c = sqlite3.connect('./db')
 
         c.execute("create table if not exists nodes (ip text, port text)")
-        c.execute("create table if not exists domains (domain text, ip text, key text, ttl text, timestamp text)")
+        c.execute("create table if not exists domains "
+                  "(domain text, ip text, key text, ttl text, timestamp text)")
         c.commit()
         for row in c.execute("select * from nodes"):
             self.nodes[row[0]] = int(row[1])      

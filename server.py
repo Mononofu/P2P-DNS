@@ -74,9 +74,10 @@ class Server(threading.Thread):
                         n = l.split(' ')
 
                         if n[0] != address and n[0] != my_address:
-                            self.send_message("REQUEST CONNECTION\nPORT %d" % listen_port,
-                                          n[0],
-                                          n[1])
+                            self.send_message("REQUEST CONNECTION\nPORT %d"
+                                              % listen_port,
+                                              n[0],
+                                              n[1])
                 elif "DOMAINS" in msg:
                     for l in msg.split('\n')[2:]:
                         n = l.split(' ')

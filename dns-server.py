@@ -90,7 +90,8 @@ p2presolver = MapResolver(servers=[('8.8.8.8', 53)])
 
 
 # create the protocols
-f = server.DNSServerFactory(caches=[cache.CacheResolver()], clients=[p2presolver])
+f = server.DNSServerFactory(caches=[cache.CacheResolver()],
+                            clients=[p2presolver])
 p = dns.DNSDatagramProtocol(f)
 f.noisy = p.noisy = False
 

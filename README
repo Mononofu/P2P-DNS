@@ -7,10 +7,16 @@ You need a SSL certificate for your node, just generate one:
 
 openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes 
 
-This is not a problem since we use ssl just for encryption, not 
-authentication.
-Note: The certificate needs to be named server.pem and reside in the same
-dir as the source code. If you don't like that, commit a patch.
+This is not a problem since we use ssl just for encryption, not authentication.
+Note: The certificate needs to be named server.pem and reside in the same dir as
+ the source code. If you don't like that, commit a patch.
+
+You might also need the zmq module. If you are using Ubuntu, it's easy to 
+install:
+
+sudo add-apt-repository ppa:chris-lea/zeromq  
+sudo aptitude update
+sudo aptitude install python-zeromq
 
 ======== Usage ==========
 
@@ -21,15 +27,14 @@ or './p2p-dns.py'
 
 ======= Source =======
 
-The official repo for this is https://github.com/Mononofu/P2P-DNS, 
-so please look there if you want the newest version or want to 
-commit a patch.
+The official repo for this is https://github.com/Mononofu/P2P-DNS, so please 
+look there if you want the newest version or want to commit a patch.
 
 
 ======= License ======
 
-This will use the GPLv3, except the normal DNS server (dns-server.py),
- which was designed by Jochen Ritzel (http://stackoverflow.com/questions/4399512/python-dns-server-with-custom-backend/4401671#4401671)
+This will use the GPLv3, except the normal DNS server (dns-server.py),  which was
+designed by Jochen Ritzel (http://stackoverflow.com/questions/4399512/python-dns-server-with-custom-backend/4401671#4401671)
 
 
 

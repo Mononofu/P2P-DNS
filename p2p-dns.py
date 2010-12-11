@@ -49,7 +49,9 @@ class App(object):
             print( "%-10s %s" % (command, explanaiton) )
 
     def start_daemon(self):
-        proc_id = os.spawnl(os.P_NOWAIT, sys.executable + " " + sys.argv[0], "-d")
+        proc_id = os.spawnl(os.P_NOWAIT,
+                            sys.executable + " " + sys.argv[0],
+                            "-d")
         print("process id: %s" % proc_id)
         self.quit()
 
@@ -109,7 +111,8 @@ class App(object):
                     elif io == "quit":
                         self.stop()
                     else:
-                        print("Didn't recognize command. Please retry or type 'help'")
+                        print("Didn't recognize command. "
+                              "Please retry or type 'help'")
                 except EOFError:
                     self.stop()
             
