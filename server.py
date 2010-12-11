@@ -7,12 +7,6 @@ from config import *
 from database import *
 import socket, ssl
 
-class Domain(object):
-    def __init__(self, domain, ip, key):
-        self.domain = domain
-        self.ip = ip
-        self.key = key
-
 class Server(threading.Thread):
     def __init__(self, db):
         threading.Thread.__init__(self)
@@ -46,20 +40,34 @@ class Server(threading.Thread):
                                       address)
                     port = int( re.findall(r'PORT (\d+)', msg)[0] )
 
-                    self.database.add_node_to_db(address, port)                
+                    self.database.add_node(address, port)                
                     print("have new node: %s:%s" % (address, port))
+                    self.send_message("REQUEST NODES", address)
+                    self.send_message("REQUEST DOMAINS", address)
                 elif "NODES" in msg:
                     print("all the nodes I know!")
                     msg = "DATA NODES"
-                    for (ip, port) in self.nodes.items():
+                    for (ip, port) in self.database.nodes.items():
                         msg += "\n%s %s" % (ip, port)
+                    self.send_message(msg, address)
+                elif "DOMAINS" in msg:
+                    print("all the domains I know!")
+                    msg = "DATA DOMAINS"
+                    for (domain, record) in self.database.domains.items():
+                        # "domain ip ttl timestamp key"
+                        msg += "%s %s %d %s %s" % (domain,
+                                                record.ip,
+                                                record.ttl,
+                                                record.timestamp,
+                                                record.key)
                     self.send_message(msg, address)
             elif "ACCEPT" in msg:
                 if "CONNECTION" in msg:
                     print("node accepted the connection")
                     port = int( re.findall(r'PORT (\d+)', msg)[0] )
-                    self.add_node_to_db(address, port)
-                    self.send_message("REQUEST NODES", address)            
+                    self.database.add_node(address, port)
+                    self.send_message("REQUEST NODES", address)
+                    self.send_message("REQUEST DOMAINS", address)
             elif "DATA" in msg:
                 if "NODES" in msg:
                     for l in msg.split('\n')[2:]:
@@ -69,6 +77,11 @@ class Server(threading.Thread):
                             self.send_message("REQUEST CONNECTION\nPORT %d" % listen_port,
                                           n[0],
                                           n[1])
+                elif "DOMAINS" in msg:
+                    for l in msg.split('\n')[2:]:
+                        n = l.split(' ')
+                        self.database.add_domain(n[0], n[1], n[2], n[3], n[4])
+
                         
         return True
 

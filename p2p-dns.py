@@ -100,6 +100,12 @@ class App(object):
                         self.db.print_nodes()
                     elif io == "domains":
                         self.db.print_domains()
+                    elif io == "register":
+                        domain = raw_input("domain:")
+                        ip = raw_input("IP:")
+                        ttl = raw_input("TTL:")
+                        key = "" # not yet implemented, read key from file
+                        self.db.add_domain(domain, ip, key, ttl)
                     elif io == "quit":
                         self.stop()
                     else:

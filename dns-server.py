@@ -1,7 +1,8 @@
 """
-Created on 16.08.2010
+@original author: Jochen Ritzel
+http://stackoverflow.com/questions/4399512/python-dns-server-with-custom-backend/4401671#4401671
 
-@author: Jochen Ritzel
+I extended this to include zmq communication to support p2p-dns
 """
 from twisted.names import dns, server, client, cache
 from twisted.application import service, internet
