@@ -13,8 +13,9 @@
                               ===== About =====
 
 This is an alternative DNS system which relies on distribution to be censor
-resistant. Records will be authenticated by a public/private key system, where
-only the owner of the private key can change the domain.
+resistant. There is no central authority here! Records will be authenticated 
+by a public/private key system, where only the owner of the private key can 
+change the domain.
 
 All nodes know all other nodes, and they also cache all known domains. This
 makes it very difficult to tamper with records, since all existing nodes have
