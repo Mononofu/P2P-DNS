@@ -1,8 +1,8 @@
 ===============================================================================
 ===============================================================================
-========	______  ______   ______       _____    ______      _       ========
+========    ______  ______   ______       _____    ______      _       ========
 ========   (_____ \(_____ \ (_____ \     (____ \  |  ___ \    | |      ========
-========	_____) ) ____) ) _____) )___  _   \ \ | |   | |    \ \     ========
+========    _____) ) ____) ) _____) )___  _   \ \ | |   | |    \ \     ========
 ========   |  ____/ /_____/ |  ____/(___)| |   | || |   | |     \ \    ========
 ========   | |      _______ | |          | |__/ / | |   | | _____) )   ========
 ========   |_|     (_______)|_|          |_____/  |_|   |_|(______/    ========
@@ -10,7 +10,7 @@
 ===============================================================================
 ===============================================================================
 
-							  ===== About =====
+                              ===== About =====
 
 This is an alternative DNS system which relies on distribution to be censor
 resistant. Records will be authenticated by a public/private key system, where
@@ -32,7 +32,7 @@ deployed.
 For more details, refer to http://furidamu.org/p2p-dns
 
 
-						   ===== Installation =====
+                           ===== Installation =====
 
 You need a SSL certificate for your node, just generate one:
 
@@ -50,7 +50,7 @@ sudo aptitude update
 sudo aptitude install python-zeromq
 
 
-							  ===== Usage =====
+                              ===== Usage =====
 
 To start the normal DNS server, type: 'twistd -y dns-server.py'
 This server will try to connect to a p2p-dns server on the same machine, so if
@@ -62,14 +62,14 @@ There are a few options in the config.py file, but it should work without
 changes.
 
 
-							  ===== Source =====
+                              ===== Source =====
 
 The official repo for this is https://github.com/Mononofu/P2P-DNS, so please 
 look there if you want the newest version or want to commit a patch.
 
 
 
-							 ===== License =====
+                             ===== License =====
 
 This will use the GPLv3, except the normal DNS server (dns-server.py),  which 
 was designed by Jochen Ritzel (http://stackoverflow.com/questions/4399512/python-dns-server-with-custom-backend/4401671#4401671)
