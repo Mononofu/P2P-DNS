@@ -3,21 +3,15 @@
 
 from database import *
 from config import *
+from stoppable_thread import *
 import threading
 import zmq
 
-class DNSModule(threading.Thread):
+class DNSModule(StoppableThread):
     def __init__(self, db, port = dns_module_listen_port):
-        threading.Thread.__init__(self)
-        self._stopped = threading.Event()
+        StoppableThread.__init__(self)
         self.database = db
         self.port = port
-        
-    def stop(self):
-        self._stopped.set()
-
-    def stopped(self):
-        return self._stopped.is_set()
 
     def run(self):
         context = zmq.Context()
