@@ -61,6 +61,10 @@ To launch the actual p2p-dns server, use 'python p2p-dns.py' or './p2p-dns.py'
 There are a few options in the config.py file, but it should work without
 changes.
 
+Don't use this on a production system! Right now you can register all domains, 
+even those which already exist in the real dns system. Also, there are probably 
+lots of security holes. You have been warned!
+
 
                               ===== Source =====
 
