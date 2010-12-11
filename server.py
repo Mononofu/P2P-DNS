@@ -143,6 +143,22 @@ class Server(StoppableThread):
                           port)
         # that's the port this server is listening on
 
+    def register_domain(self, domain, ip, key, ttl = default_ttl):
+        # put in db
+        self.database.add_domain(domain, ip, key, ttl)
+
+        # announce to all known nodes
+        for (node_ip, node_port) in self.database.get_nodes().items():
+            # "domain ip ttl timestamp key"
+            self.sender.send_message("DATA DOMAINS\n%s %s %d %s %s" % (
+                    domain,
+                    ip,
+                    ttl,
+                    time.time() + default_record_lifetime,
+                    key),
+                                     node_ip,
+                                     node_port)
+
     def run(self):
         s = socket.socket()
         s.bind(('', listen_port))
